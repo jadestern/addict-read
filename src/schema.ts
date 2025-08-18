@@ -19,14 +19,65 @@ export const JazzProfile = co.profile({
 
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
+/** RSS 피드 스키마 - 로컬 우선, 나중에 계정 연결 가능 */
+export const RSSFeed = co.map({
+  url: z.string(),
+  title: z.string(),
+  // 나중에 계정 연결 시 사용할 구멍
+  userId: z.string().optional(),
+});
+
+/** 기사 스키마 - 로컬 우선, 나중에 계정 연결 가능 */
+export const Article = co.map({
+  title: z.string(),
+  url: z.string(),
+  feedUrl: z.string(),
+  pubDate: z.string(),
+  isRead: z.boolean().default(false),
+  // 나중에 계정 연결 시 사용할 구멍
+  userId: z.string().optional(),
+});
+
 export const AccountRoot = co.map({
   dateOfBirth: z.date(),
+  // 로그인 후 기존 로컬 데이터 연결용 구멍들
+  importedFeeds: co.list(RSSFeed).optional(),
+  importedArticles: co.list(Article).optional(),
 });
 
 export function getUserAge(root: co.loaded<typeof AccountRoot> | undefined) {
   if (!root) return null;
   return new Date().getFullYear() - root.dateOfBirth.getFullYear();
 }
+
+// 로컬 상태에서 사용할 타입 정의
+export type LocalFeed = {
+  id: string;
+  url: string;
+  title: string;
+};
+
+export type LocalArticle = {
+  id: string;
+  title: string;
+  url: string;
+  feedUrl: string;
+  pubDate: string;
+  isRead: boolean;
+};
+
+// RSS 파싱 API 응답 타입
+export type ParsedFeed = {
+  title: string;
+  url: string;
+  articles: ParsedArticle[];
+};
+
+export type ParsedArticle = {
+  title: string;
+  link: string;
+  pubDate: string;
+};
 
 export const JazzAccount = co
   .account({
