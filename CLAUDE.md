@@ -10,6 +10,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Use Korean for commit messages, comments, and code documentation
 - Maintain Korean language consistency throughout all interactions
 
+## 문서 관리
+
+**문서 위치**: 모든 프로젝트 문서는 `docs/` 폴더에 생성하고 관리합니다.
+- 개발 가이드, 로드맵, 명세서 등은 `docs/` 디렉토리 내에 위치
+- 문서 파일명은 한글로 작성 (예: `개발-로드맵.md`, `API-명세서.md`)
+- README.md와 CLAUDE.md는 루트 디렉토리에 유지
+
 ## Project Overview
 
 This is a Jazz React starter application demonstrating local-first collaborative data structures with Passkey authentication. Jazz is a TypeScript framework for building apps with seamless sync, real-time collaboration, and offline-first capabilities.
