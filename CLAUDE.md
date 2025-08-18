@@ -220,3 +220,137 @@ bun test
 - [ ] 실패하는 E2E 테스트 작성  
 - [ ] 기능 구현
 - [ ] 모든 테스트 통과 확인
+
+## Git 및 GitHub 워크플로우
+
+이 프로젝트는 **GitHub CLI (`gh`)를 적극적으로 활용**하여 효율적인 개발 워크플로우를 구축합니다.
+
+### GitHub CLI 필수 명령어
+
+**저장소 관리**:
+```bash
+gh repo view                    # 저장소 정보 확인
+gh repo clone owner/repo        # 저장소 클론
+gh browse                       # 브라우저에서 저장소 열기
+```
+
+**이슈 관리**:
+```bash
+gh issue list                   # 이슈 목록 확인
+gh issue create --title "제목" --body "내용"  # 새 이슈 생성
+gh issue view 123               # 특정 이슈 확인
+gh issue close 123              # 이슈 닫기
+```
+
+**Pull Request 워크플로우**:
+```bash
+# PR 생성 (현재 브랜치에서)
+gh pr create --title "PR 제목" --body "설명"
+
+# PR 목록 및 상태 확인
+gh pr list
+gh pr status
+
+# PR 세부사항 확인
+gh pr view 123
+gh pr diff 123
+
+# PR 병합
+gh pr merge 123 --squash --delete-branch
+
+# PR 체크아웃 (리뷰용)
+gh pr checkout 123
+```
+
+**릴리즈 관리**:
+```bash
+gh release list                 # 릴리즈 목록
+gh release create v1.0.0 --title "Release v1.0.0" --notes "릴리즈 노트"
+gh release view v1.0.0          # 특정 릴리즈 확인
+```
+
+### 권장 Git + GitHub CLI 워크플로우
+
+**1. 기능 개발 시작**:
+```bash
+git checkout -b feature/rss-parser
+# 개발 작업...
+git add .
+git commit -m "RSS 파서 구현"
+git push -u origin feature/rss-parser
+```
+
+**2. PR 생성 및 리뷰**:
+```bash
+gh pr create --title "RSS 파서 구현" --body "$(cat <<'EOF'
+## 변경사항
+- RSS URL 파싱 기능 추가
+- 에러 처리 로직 구현
+
+## 테스트
+- [ ] 유닛 테스트 통과
+- [ ] E2E 테스트 통과
+
+## 체크리스트
+- [ ] 코드 리뷰 완료
+- [ ] 테스트 커버리지 확인
+EOF
+)"
+```
+
+**3. 이슈 연결**:
+```bash
+# PR에 이슈 연결
+gh pr edit 123 --body "Closes #456\n\n기존 내용..."
+```
+
+**4. 머지 및 정리**:
+```bash
+gh pr merge --squash --delete-branch
+git checkout main
+git pull
+```
+
+### 자동화된 커밋 및 푸시
+
+**일반 개발 커밋**:
+```bash
+# 변경사항 확인
+git status
+git diff
+
+# 커밋 및 푸시
+git add .
+git commit -m "$(cat <<'EOF'
+기능 요약
+
+- 구체적인 변경사항 1
+- 구체적인 변경사항 2
+- 테스트 결과 요약
+EOF
+)"
+git push
+```
+
+**PR 준비된 기능 푸시**:
+```bash
+# 기능 완성 후
+git push
+gh pr create --title "기능명" --body "상세 설명"
+```
+
+### GitHub CLI 설정
+
+프로젝트 시작 시 GitHub CLI 인증 확인:
+```bash
+gh auth status
+gh auth login  # 필요시
+```
+
+### 협업 시 권장사항
+
+- **이슈 우선 생성**: 작업 전 관련 이슈 생성
+- **브랜치 네이밍**: `feature/기능명`, `fix/버그명`, `docs/문서명`
+- **PR 템플릿 활용**: 일관된 PR 설명 작성
+- **자동 링크**: PR과 이슈 자동 연결 (`Closes #123`)
+- **스쿼시 머지**: 깔끔한 히스토리 유지
