@@ -94,6 +94,7 @@ export const JazzAccount = co
       account.root = AccountRoot.create(
         {
           dateOfBirth: new Date("1/1/1990"),
+          importedFeeds: co.list(RSSFeed).create([], group),
         },
         group,
       );
