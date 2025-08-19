@@ -13,10 +13,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 문서 관리
 
 **문서 위치**: 모든 프로젝트 문서는 `docs/` 폴더에 생성하고 관리합니다.
-- 개발 가이드, 로드맵, 명세서 등은 `docs/` 디렉토리 내에 위치
-- 문서 파일명은 영어로 작성 (예: `development-roadmap.md`, `api-specification.md`)
 - README.md와 CLAUDE.md는 루트 디렉토리에 유지
-- 문서 내용은 한글로 작성하되, 파일명은 영어 사용
+- 문서 파일명은 영어로 작성, 내용은 한글 사용
+
+**핵심 문서 구조**:
+- `docs/tasks.md` - 현재 해야 할 작업 및 백로그 관리
+- `docs/changelog.md` - 완료된 작업 및 변경 사항 기록
+- `docs/1.PRD.md` - 제품 요구사항 명세
+- `docs/2.user-story.md` - 사용자 스토리
+- `docs/3.development-roadmap.md` - 개발 로드맵
 
 ## Project Overview
 
@@ -388,3 +393,40 @@ gh auth login  # 필요시
 - **PR 템플릿 활용**: 일관된 PR 설명 작성
 - **자동 링크**: PR과 이슈 자동 연결 (`Closes #123`)
 - **스쿼시 머지**: 깔끔한 히스토리 유지
+
+---
+## 🛠 개발 명령어
+
+```bash
+# 개발
+bun run dev          # 개발 서버 (http://localhost:5173)
+bun run build        # 프로덕션 빌드
+
+# 테스트
+bun test:run         # 유닛 테스트 (10개 RSS 검증)
+bun test:e2e         # E2E 테스트 (현재 1/7 활성화)
+bun test             # 유닛 테스트 감시 모드
+
+# 코드 품질
+bun run format-and-lint:fix
+```
+
+---
+
+## 📝 기술 스택 현황
+
+- **프레임워크**: React 19 + Vite
+- **데이터**: Jazz CoValue (실시간 동기화)
+- **스타일링**: TailwindCSS 4
+- **테스트**: Vitest (유닛) + Playwright (E2E)
+- **패키지 매니저**: Bun
+- **배포**: Netlify
+
+---
+
+## 🎯 TDD 전략
+
+**현재 방식**: E2E 테스트 Skip 패턴
+- 7개 시나리오 모두 작성됨
+- 단계별로 `test.skip()` 제거하며 구현
+- 각 단계에서 완전 작동 상태 유지
