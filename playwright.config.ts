@@ -5,7 +5,7 @@ import isCI from "is-ci";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./e2e",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -38,7 +38,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: "pnpm preview --port 5173",
+      command: "bun run preview --port 5173",
       url: "http://localhost:5173/",
       reuseExistingServer: !isCI,
     },

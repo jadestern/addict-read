@@ -14,8 +14,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **문서 위치**: 모든 프로젝트 문서는 `docs/` 폴더에 생성하고 관리합니다.
 - 개발 가이드, 로드맵, 명세서 등은 `docs/` 디렉토리 내에 위치
-- 문서 파일명은 한글로 작성 (예: `개발-로드맵.md`, `API-명세서.md`)
+- 문서 파일명은 영어로 작성 (예: `development-roadmap.md`, `api-specification.md`)
 - README.md와 CLAUDE.md는 루트 디렉토리에 유지
+- 문서 내용은 한글로 작성하되, 파일명은 영어 사용
 
 ## Project Overview
 
