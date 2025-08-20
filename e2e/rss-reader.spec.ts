@@ -62,7 +62,7 @@ test.describe('RSS Reader 기본 기능', () => {
     await expect(submitButton).toBeDisabled();
   });
 
-  test.skip('RSS 피드 추가 후 기사 목록이 표시되어야 함', async ({ page }) => {
+  test('RSS 피드 추가 후 기사 목록이 표시되어야 함', async ({ page }) => {
     const rssUrlInput = page.getByLabel('RSS URL');
     const submitButton = page.getByRole('button', { name: /추가|구독/ });
 
@@ -77,6 +77,57 @@ test.describe('RSS Reader 기본 기능', () => {
     await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
 
     // 최소 1개 이상의 기사가 표시되어야 함
-    await expect(page.getByTestId('article-item')).toHaveCount(1);
+    const articleCount = await page.getByTestId('article-item').count();
+    expect(articleCount).toBeGreaterThan(0);
+  });
+
+  test('RSS URL 추가 후 입력 필드가 초기화되어야 함', async ({ page }) => {
+    const rssUrlInput = page.getByLabel('RSS URL');
+    const submitButton = page.getByRole('button', { name: /추가|구독/ });
+
+    // 유효한 RSS URL 입력
+    await rssUrlInput.fill('https://feeds.feedburner.com/TechCrunch');
+    await submitButton.click();
+
+    // 성공 토스트가 표시되면 입력 필드가 비어져야 함
+    await expect(page.getByTestId('success-message')).toBeVisible();
+    await expect(rssUrlInput).toHaveValue('');
+  });
+
+  test('중복된 RSS URL 추가 시 에러 메시지가 표시되어야 함', async ({ page }) => {
+    const rssUrlInput = page.getByLabel('RSS URL');
+    const submitButton = page.getByRole('button', { name: /추가|구독/ });
+
+    // 첫 번째 RSS URL 추가
+    await rssUrlInput.fill('https://feeds.feedburner.com/TechCrunch');
+    await submitButton.click();
+    await expect(page.getByTestId('success-message')).toBeVisible();
+
+    // 같은 URL 다시 추가 시도
+    await rssUrlInput.fill('https://feeds.feedburner.com/TechCrunch');
+    await submitButton.click();
+
+    // 중복 에러 메시지 확인
+    await expect(page.getByTestId('error-message')).toBeVisible();
+    await expect(page.getByText('이미 구독 중인 피드입니다!')).toBeVisible();
+  });
+
+  test('RSS 파싱 실패 시 에러 메시지가 표시되어야 함', async ({ page }) => {
+    // Mock API에서 에러를 발생시키기 위해 특정 URL 사용
+    const errorUrl = 'https://invalid-rss-feed.com/error';
+    
+    const rssUrlInput = page.getByLabel('RSS URL');
+    const submitButton = page.getByRole('button', { name: /추가|구독/ });
+
+    // 에러를 발생시킬 URL 입력
+    await rssUrlInput.fill(errorUrl);
+    await submitButton.click();
+
+    // 구독 추가 성공 토스트가 먼저 나타날 수 있음
+    await expect(page.getByTestId('success-message')).toBeVisible();
+
+    // 파싱 에러 토스트 확인 (약간의 지연 후)
+    await expect(page.getByTestId('error-message')).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText('기사를 불러오는데 실패했습니다')).toBeVisible();
   });
 });

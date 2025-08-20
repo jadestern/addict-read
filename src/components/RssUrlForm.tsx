@@ -5,9 +5,10 @@ import { useToast } from "../contexts/ToastContext";
 interface RssUrlFormProps {
   onSubmit: (url: string) => void;
   isLoading?: boolean;
+  onSuccess?: () => void;
 }
 
-export function RssUrlForm({ onSubmit, isLoading = false }: RssUrlFormProps) {
+export function RssUrlForm({ onSubmit, isLoading = false, onSuccess }: RssUrlFormProps) {
   const [url, setUrl] = useState("");
   const { showToast } = useToast();
 
@@ -21,11 +22,12 @@ export function RssUrlForm({ onSubmit, isLoading = false }: RssUrlFormProps) {
       return;
     }
     
-    // 성공 메시지 표시
-    showToast('구독이 추가되었습니다', 'success');
-    
     // 검증된 URL로 onSubmit 호출
     onSubmit(validation.cleanUrl!);
+    
+    // 성공 시 입력 필드 초기화
+    setUrl("");
+    onSuccess?.();
   };
 
   return (

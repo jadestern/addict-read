@@ -427,6 +427,114 @@ bun run format-and-lint:fix
 ## 🎯 TDD 전략
 
 **현재 방식**: E2E 테스트 Skip 패턴
-- 7개 시나리오 모두 작성됨
 - 단계별로 `test.skip()` 제거하며 구현
 - 각 단계에서 완전 작동 상태 유지
+
+---
+
+## 🔧 Jazz Framework 핵심 학습 사항
+
+### Jazz 데이터 영속성 + 반응성 패턴
+
+**핵심 원칙**: Jazz CoValue는 자체적으로 React 반응성을 제공하므로 useState 불필요
+
+```typescript
+// ❌ 불필요한 중복 - Jazz 데이터를 useState로 복사
+const [articles, setArticles] = useState<Article[]>([]);
+
+useEffect(() => {
+  if (me?.root?.importedArticles) {
+    const jazzArticles = me.root.importedArticles.map(article => ({ ... }));
+    setArticles(jazzArticles); // 불필요한 복사 + 동기화 복잡성
+  }
+}, [me?.root?.importedArticles]);
+
+// ✅ Jazz 직접 사용 - 자동 영속성 + 반응성
+const articles = useMemo(() => {
+  if (!me?.root?.importedArticles) return [];
+  return me.root.importedArticles
+    .filter(article => article !== null)
+    .map(article => ({
+      title: article.title,
+      link: article.url,
+      pubDate: article.pubDate,
+    }));
+}, [me?.root?.importedArticles]);
+```
+
+**Jazz 반응성 메커니즘**:
+- `me?.root?.importedArticles` 변경 시 자동 리렌더링
+- 데이터가 Jazz에 저장되면 즉시 UI 업데이트
+- 새로고침 시에도 Jazz 데이터가 자동 복원되어 UI 표시
+
+### Jazz Schema Import 주의사항
+
+```typescript
+// ❌ 타입 충돌 위험
+import { Article } from "./schema.ts";
+import { Article } from "./types/rss.ts";
+
+// ✅ alias 사용으로 충돌 방지
+import { Article as JazzArticle } from "./schema.ts";
+import { Article } from "./types/rss.ts";
+```
+
+### Jazz 데이터 초기화 패턴
+
+```typescript
+// Jazz 데이터 컬렉션 초기화 시 체크 필수
+if (!me.root.importedArticles) {
+  const privateGroup = Group.create();
+  privateGroup.addMember(me, "writer");
+  me.root.importedArticles = co.list(JazzArticle).create([], privateGroup);
+}
+```
+
+### 함수 분리 및 에러 처리 전략
+
+**문제**: 하나의 긴 함수에서 구독 추가와 RSS 파싱이 혼재
+**해결**: 기능별 함수 분리 + 개별 에러 처리
+
+```typescript
+// ✅ 구독 추가와 파싱을 분리하여 독립적 에러 처리
+const handleRssSubmit = async (url: string) => {
+  const subscriptionAdded = await addSubscription(url);  // 구독 처리
+  if (subscriptionAdded) {
+    await parseAndSaveArticles(url);  // 파싱 처리 (별도 try/catch)
+  }
+};
+```
+
+### Toast 시스템 설계 원칙
+
+1. **중복 방지**: 하나의 이벤트에 대해 하나의 토스트만
+2. **단계별 피드백**: 구독 추가 → 성공 토스트 → 파싱 시작 → 완료/에러
+3. **명확한 메시지**: 구체적인 상황 설명
+
+### E2E 테스트 작성 핵심
+
+```typescript
+// ✅ 에러 시나리오 테스트
+test('RSS 파싱 실패 시 에러 메시지가 표시되어야 함', async ({ page }) => {
+  // Mock API에서 특정 URL로 에러 발생시키기
+  const errorUrl = 'https://invalid-rss-feed.com/error';
+  
+  // 구독 성공 → 파싱 실패 순서로 테스트
+  await expect(page.getByTestId('success-message')).toBeVisible();
+  await expect(page.getByTestId('error-message')).toBeVisible({ timeout: 3000 });
+});
+```
+
+### 개발 중 디버깅 전략
+
+1. **콘솔 로그 활용**: 개발 중에는 적극 활용, 완성 후 제거
+2. **Jazz 데이터 상태 확인**: `me?.root?.importedFeeds` falsy 체크 필수
+3. **React DevTools**: Jazz 데이터 변화 실시간 모니터링
+
+### 리팩터링 체크리스트
+
+- [ ] 함수 단일 책임 원칙 준수
+- [ ] 에러 처리 분리 (구독 vs 파싱)
+- [ ] Jazz 데이터 초기화 체크
+- [ ] 콘솔 로그 제거
+- [ ] 모든 E2E 테스트 통과
