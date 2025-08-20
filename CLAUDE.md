@@ -144,11 +144,70 @@ Netlify 대시보드에서 설정 필요한 환경 변수들:
 - Jazz의 로컬 퍼스트 특성으로 서버 의존성 최소화
 - 정적 파일 CDN 자동 배포
 
-## TDD 개발 방법론
+## 🚨 TDD 개발 방법론 (필수 준수)
 
-이 프로젝트는 Test-Driven Development (TDD) 방식으로 개발합니다.
+이 프로젝트는 **엄격한 Test-Driven Development (TDD) 방식**으로 개발합니다.
 
-### 개발 접근법
+### ⚠️ 절대 원칙: 테스트 우선 (Test-First)
+
+**🔴 RED → 🟢 GREEN → ⚪ REFACTOR 순서 필수**
+
+```
+❌ 절대 금지: 구현 → 테스트 작성
+✅ 필수 순서: 테스트 작성 → 구현 → 리팩터링
+```
+
+### 🔥 강제 TDD 워크플로우
+
+**1. 🔴 RED**: 실패하는 테스트 먼저 작성
+```typescript
+// ❌ 이렇게 하지 마세요
+function deleteFunction() { /* 구현 먼저 */ }
+test('should delete', () => { /* 나중에 테스트 */ });
+
+// ✅ 이렇게 하세요 
+test.skip('구독된 피드 삭제 기능이 작동해야 함', async ({ page }) => {
+  // 테스트 시나리오 먼저 작성
+  await page.getByTestId('delete-feed-0').click();
+  await expect(page.getByText('피드가 삭제되었습니다')).toBeVisible();
+});
+```
+
+**2. 🟢 GREEN**: 테스트를 통과시키는 최소 구현
+```typescript
+// test.skip() 제거 후 실패 확인
+// 최소한의 구현으로 테스트 통과시키기
+const handleDeleteFeed = () => {
+  showToast('피드가 삭제되었습니다', 'success');
+};
+```
+
+**3. ⚪ REFACTOR**: 코드 품질 개선
+```typescript
+// 테스트 통과 후 실제 기능 구현 및 최적화
+const handleDeleteFeed = async (feedId: string, feedUrl: string) => {
+  // 완전한 구현
+};
+```
+
+### 🎯 TDD 체크리스트 (매번 확인)
+
+**새 기능 개발 시 필수 순서**:
+1. [ ] **테스트 시나리오 작성** (`test.skip()` 사용)
+2. [ ] **테스트 활성화** (`test.skip()` 제거)
+3. [ ] **실패 확인** (Red 상태)
+4. [ ] **최소 구현** (Green 상태)
+5. [ ] **리팩터링** (품질 개선)
+6. [ ] **모든 테스트 통과** 확인
+
+### 🚫 TDD 위반 시 즉시 중단
+
+다음 상황 발견 시 **즉시 작업 중단**하고 TDD로 다시 시작:
+- 테스트 없이 구현된 코드
+- 기능 구현 후 작성된 테스트
+- `test.skip()` 패턴 무시
+
+### 📋 개발 접근법
 
 **1. 유틸리티 함수 → 유닛 테스트 (Vitest)**
 - URL 검증, 데이터 변환, 계산 로직 등

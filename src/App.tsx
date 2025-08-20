@@ -3,6 +3,7 @@ import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { Group, co } from "jazz-tools";
 import { RssUrlForm } from "./components/RssUrlForm.tsx";
 import { ArticleList } from "./components/ArticleList.tsx";
+import { FeedList } from "./components/FeedList.tsx";
 import { AuthButton } from "./AuthButton.tsx";
 import { JazzAccount, RSSFeed, Article as JazzArticle } from "./schema.ts";
 import { Article } from "./types/rss.ts";
@@ -19,7 +20,7 @@ function App() {
   // 로딩 상태 관리 (Jazz 데이터는 자동 반응성)
   const [isLoading, setIsLoading] = useState(false);
 
-  // Jazz 데이터를 직접 사용 - 자동 반응성 확보
+  // Jazz 데이터를 직접 사용 - 자동 반응성 + 최신순 정렬
   const articles = useMemo(() => {
     if (!me?.root?.importedArticles) return [];
     return me.root.importedArticles
@@ -29,7 +30,8 @@ function App() {
         link: article.url,
         pubDate: article.pubDate,
         description: undefined,
-      }));
+      }))
+      .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
   }, [me?.root?.importedArticles]);
 
   // 구독 추가 처리
@@ -119,6 +121,39 @@ function App() {
     }
   };
 
+  // 피드 삭제 처리
+  const handleDeleteFeed = async (feedId: string, feedUrl: string) => {
+    try {
+      if (me?.root?.importedFeeds) {
+        // 피드 삭제
+        const feedIndex = me.root.importedFeeds.findIndex(feed => feed?.id === feedId);
+        if (feedIndex !== -1) {
+          me.root.importedFeeds.splice(feedIndex, 1);
+        }
+
+        // 해당 피드의 기사들도 삭제
+        if (me.root.importedArticles) {
+          const articlesToRemove = [];
+          for (let i = me.root.importedArticles.length - 1; i >= 0; i--) {
+            const article = me.root.importedArticles[i];
+            if (article?.feedUrl === feedUrl) {
+              articlesToRemove.push(i);
+            }
+          }
+          
+          // 뒤에서부터 삭제하여 인덱스 변화 방지
+          articlesToRemove.forEach(index => {
+            me.root.importedArticles!.splice(index, 1);
+          });
+        }
+      }
+
+      showToast('피드가 삭제되었습니다', 'success');
+    } catch (error) {
+      showToast('피드 삭제에 실패했습니다', 'error');
+    }
+  };
+
   return (
     <>
       <header>
@@ -136,24 +171,14 @@ function App() {
           )}
         </div>
 
-        <RssUrlForm onSubmit={handleRssSubmit} isLoading={isLoading} />
-
         <ArticleList articles={articles} isLoading={isLoading} />
 
-        {me?.root?.importedFeeds && me.root.importedFeeds.length > 0 && (
-          <div className="mt-4 p-4 bg-gray-100 rounded-md">
-            <h3 className="font-medium mb-2">구독 중인 피드:</h3>
-            <ul className="space-y-1">
-              {me.root.importedFeeds.map((feed, index) => (
-                <li key={index} className="text-sm">
-                  <span className="font-medium">{feed?.title}</span>
-                  <br />
-                  <span className="text-gray-600">{feed?.url}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <RssUrlForm onSubmit={handleRssSubmit} isLoading={isLoading} />
+
+        <FeedList 
+          feeds={me?.root?.importedFeeds || []} 
+          onDeleteFeed={handleDeleteFeed} 
+        />
       </main>
     </>
   );

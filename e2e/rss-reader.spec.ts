@@ -130,4 +130,52 @@ test.describe('RSS Reader 기본 기능', () => {
     await expect(page.getByTestId('error-message')).toBeVisible({ timeout: 3000 });
     await expect(page.getByText('기사를 불러오는데 실패했습니다')).toBeVisible();
   });
+
+  test('구독된 피드 삭제 기능이 작동해야 함', async ({ page }) => {
+    const rssUrlInput = page.getByLabel('RSS URL');
+    const submitButton = page.getByRole('button', { name: /추가|구독/ });
+
+    // 피드 추가
+    await rssUrlInput.fill('https://feeds.feedburner.com/TechCrunch');
+    await submitButton.click();
+    await expect(page.getByTestId('success-message')).toBeVisible();
+
+    // 구독 목록에 피드가 표시되는지 확인
+    await expect(page.getByText('구독 중인 피드:')).toBeVisible();
+    await expect(page.getByText('feedburner.com Feed')).toBeVisible();
+
+    // 삭제 버튼 클릭
+    await page.getByTestId('delete-feed-0').click();
+
+    // 삭제 성공 토스트 확인
+    await expect(page.getByTestId('success-message')).toBeVisible();
+    await expect(page.getByText('피드가 삭제되었습니다')).toBeVisible();
+
+    // 피드가 목록에서 사라졌는지 확인
+    await expect(page.getByText('feedburner.com Feed')).not.toBeVisible();
+    
+    // 관련 기사들도 사라졌는지 확인
+    await expect(page.getByTestId('article-item')).toHaveCount(0);
+  });
+
+  test.skip('최신 기사가 먼저 표시되어야 함', async ({ page }) => {
+    const rssUrlInput = page.getByLabel('RSS URL');
+    const submitButton = page.getByRole('button', { name: /추가|구독/ });
+
+    // 피드 추가
+    await rssUrlInput.fill('https://feeds.feedburner.com/TechCrunch');
+    await submitButton.click();
+    await expect(page.getByTestId('success-message')).toBeVisible();
+
+    // 기사 목록이 로딩된 후 확인
+    await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+    
+    // 기사들이 표시되는지 확인
+    const articles = page.getByTestId('article-item');
+    await expect(articles).toHaveCount(3);
+
+    // 첫 번째 기사가 가장 최신 기사인지 확인 (Mock 데이터에서 i=0이 가장 최신)
+    const firstArticle = articles.first();
+    await expect(firstArticle).toContainText('샘플 기사 1');
+  });
 });
