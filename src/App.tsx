@@ -37,13 +37,13 @@ function App() {
     <>
       <header>
         <nav className="max-w-2xl mx-auto flex justify-between items-center p-3">
-          <span>RSS Reader</span>
+          <span>Feedic</span>
           <AuthButton />
         </nav>
       </header>
       <main className="max-w-2xl mx-auto px-3 mt-16 flex flex-col gap-8">
         <div className="text-center">
-          <h1>RSS Reader</h1>
+          <h1>Feedic</h1>
           <p>RSS 피드를 구독하고 최신 기사를 확인하세요</p>
           {isAuthenticated && me?.profile?.firstName && (
             <p className="text-sm text-gray-600">안녕하세요, {me.profile.firstName}님!</p>

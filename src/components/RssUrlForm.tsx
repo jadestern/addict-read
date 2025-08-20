@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { validateRssUrl } from "../utils/rssValidator";
+import { useToast } from "../contexts/ToastContext";
 
 interface RssUrlFormProps {
   onSubmit: (url: string) => void;
@@ -7,12 +9,23 @@ interface RssUrlFormProps {
 
 export function RssUrlForm({ onSubmit, isLoading = false }: RssUrlFormProps) {
   const [url, setUrl] = useState("");
+  const { showToast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (url.trim()) {
-      onSubmit(url.trim());
+    
+    const validation = validateRssUrl(url);
+    
+    if (!validation.isValid) {
+      showToast(validation.error!, 'error');
+      return;
     }
+    
+    // 성공 메시지 표시
+    showToast('구독이 추가되었습니다', 'success');
+    
+    // 검증된 URL로 onSubmit 호출
+    onSubmit(validation.cleanUrl!);
   };
 
   return (
@@ -33,6 +46,7 @@ export function RssUrlForm({ onSubmit, isLoading = false }: RssUrlFormProps) {
           required
         />
       </div>
+      
       <button
         type="submit"
         data-testid="parse-rss-button"

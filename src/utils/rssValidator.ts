@@ -45,6 +45,14 @@ export function validateRssUrl(url: string): ValidationResult {
     };
   }
   
+  // HTTPS 전용 검증
+  if (cleanUrl.startsWith('http://')) {
+    return {
+      isValid: false,
+      error: 'HTTPS URL만 허용됩니다',
+    };
+  }
+  
   return {
     isValid: true,
     error: null,

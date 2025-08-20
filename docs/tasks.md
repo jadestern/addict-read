@@ -1,4 +1,4 @@
-# RSS Reader 개발 작업 관리
+# Feedic 개발 작업 관리
 
 ## 📊 현재 상태: TDD 2단계 (URL 검증 구현)
 

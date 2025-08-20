@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Jazz React starter application demonstrating local-first collaborative data structures with Passkey authentication. Jazz is a TypeScript framework for building apps with seamless sync, real-time collaboration, and offline-first capabilities.
+Feedic은 Jazz 프레임워크를 기반으로 한 현대적인 RSS 리더 앱입니다. Passkey 인증과 실시간 동기화를 지원하며, 로컬 우선(local-first) 협업 데이터 구조를 활용합니다. Jazz는 끊김없는 동기화, 실시간 협업, 오프라인 우선 기능을 제공하는 TypeScript 프레임워크입니다.
 
 ## Development Commands
 
