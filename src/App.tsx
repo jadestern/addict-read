@@ -6,7 +6,6 @@ import { ArticleList } from "./components/ArticleList.tsx";
 import { FeedList } from "./components/FeedList.tsx";
 import { AuthButton } from "./AuthButton.tsx";
 import { JazzAccount, RSSFeed, Article as JazzArticle } from "./schema.ts";
-import { Article } from "./types/rss.ts";
 import { parseMockRss } from "./api/mockRssParser.ts";
 import { useToast } from "./contexts/ToastContext.tsx";
 
@@ -78,7 +77,7 @@ function App() {
     setIsLoading(true);
     try {
       const feed = await parseMockRss(url);
-      
+
       // Jazz에 기사 저장
       if (me?.root) {
         if (!me.root.importedArticles) {
@@ -140,7 +139,7 @@ function App() {
               articlesToRemove.push(i);
             }
           }
-          
+
           // 뒤에서부터 삭제하여 인덱스 변화 방지
           articlesToRemove.forEach(index => {
             me.root.importedArticles!.splice(index, 1);
@@ -175,9 +174,9 @@ function App() {
 
         <RssUrlForm onSubmit={handleRssSubmit} isLoading={isLoading} />
 
-        <FeedList 
-          feeds={me?.root?.importedFeeds || []} 
-          onDeleteFeed={handleDeleteFeed} 
+        <FeedList
+          feeds={me?.root?.importedFeeds || []}
+          onDeleteFeed={handleDeleteFeed}
         />
       </main>
     </>
