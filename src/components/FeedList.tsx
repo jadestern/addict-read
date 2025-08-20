@@ -1,7 +1,7 @@
-import { RSSFeed } from '../schema';
+import { LocalFeed } from '../schema';
 
 interface FeedListProps {
-  feeds: (typeof RSSFeed.prototype | null)[];
+  feeds: (LocalFeed | null)[];
   onDeleteFeed: (feedId: string, feedUrl: string) => void;
 }
 
