@@ -11,7 +11,7 @@ export default defineConfig({
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: isCI,
 	/* Retry on CI only */
-	retries: isCI ? 2 : 0,
+	retries: isCI ? 1 : 0, // 빠른 실패를 위해 retry 줄임
 	/* Opt out of parallel tests on CI. */
 	workers: isCI ? 1 : undefined,
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -26,15 +26,15 @@ export default defineConfig({
 		trace: "on-first-retry",
 		permissions: ["clipboard-read", "clipboard-write"],
 		
-		/* Set default timeout to 10 seconds */
-		actionTimeout: 10000,
-		navigationTimeout: 10000,
+		/* Set default timeout to 5 seconds */
+		actionTimeout: 5000,
+		navigationTimeout: 5000,
 	},
 
-	/* Set global test timeout to 30 seconds */
-	timeout: 30000,
+	/* Set global test timeout to 15 seconds */
+	timeout: 15000,
 	expect: {
-		timeout: 10000, // expect assertions timeout
+		timeout: 5000, // expect assertions timeout
 	},
 
 	/* Configure projects for major browsers */
@@ -51,7 +51,7 @@ export default defineConfig({
 			command: "netlify dev --port 8889",
 			url: "http://localhost:8889/",
 			reuseExistingServer: !isCI,
-			timeout: 120 * 1000, // 2분 타임아웃 (netlify dev 시작 시간 고려)
+			timeout: 60 * 1000, // 1분 타임아웃으로 단축
 		},
 	],
 });
