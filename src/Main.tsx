@@ -13,18 +13,18 @@ import { JazzAccount } from "./schema.ts";
 export const APPLICATION_NAME = "feedic";
 
 createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<BrowserRouter>
-			<JazzReactProvider
-				sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
-				AccountSchema={JazzAccount}
-			>
-				<ToastProvider>
-					<App />
+  <StrictMode>
+    <BrowserRouter>
+      <JazzReactProvider
+        sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+        AccountSchema={JazzAccount}
+      >
+        <ToastProvider>
+          <App />
 
-					<JazzInspector />
-				</ToastProvider>
-			</JazzReactProvider>
-		</BrowserRouter>
-	</StrictMode>,
+          <JazzInspector />
+        </ToastProvider>
+      </JazzReactProvider>
+    </BrowserRouter>
+  </StrictMode>
 );

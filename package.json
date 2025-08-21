@@ -13,8 +13,12 @@
 		"test:run": "vitest run",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
-		"format-and-lint": "biome check .",
-		"format-and-lint:fix": "biome check . --write"
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"check": "bun run format && bun run lint && bunx tsc --noEmit",
+		"check:fix": "bun run format:fix && bun run lint:fix && bunx tsc --noEmit"
 	},
 	"dependencies": {
 		"jazz-tools": "^0.17.5",
@@ -24,7 +28,6 @@
 		"rss-parser": "^3.13.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.1.3",
 		"@playwright/test": "^1.54.2",
 		"@tailwindcss/postcss": "^4.1.10",
 		"@testing-library/jest-dom": "^6.7.0",
@@ -39,7 +42,9 @@
 		"is-ci": "^3.0.1",
 		"jsdom": "^26.1.0",
 		"netlify-cli": "^23.1.4",
+		"oxlint": "^1.12.0",
 		"postcss": "^8.4.27",
+		"prettier": "^3.6.2",
 		"tailwindcss": "^4.1.10",
 		"typescript": "5.6.2",
 		"vite": "6.3.5",

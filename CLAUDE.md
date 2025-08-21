@@ -304,6 +304,14 @@ bun test:e2e
 
 # 테스트 감시 모드 (개발 중)
 bun test
+
+# 🚨 커밋 전 필수 체크 (Oxlint + Prettier 기반)
+bun run check              # 전체 체크 (포매팅 + 린트 + 타입)
+# 또는 개별 실행:
+bun run format:fix         # Prettier 포매팅 수정
+bun run lint               # Oxlint로 빠른 린트 체크
+bunx tsc --noEmit         # TypeScript 타입 체크
+bun test:e2e               # E2E 테스트 실행
 ```
 
 ### TDD 체크리스트
@@ -318,6 +326,34 @@ bun test
 - [ ] 실패하는 E2E 테스트 작성  
 - [ ] 기능 구현
 - [ ] 모든 테스트 통과 확인
+
+### 🚨 Git 커밋 전 필수 체크리스트
+
+**매번 커밋하기 전에 반드시 실행:**
+
+```bash
+# 1. 타입 체크
+bunx tsc --noEmit
+
+# 2. 코드 품질 체크 및 수정
+bun run format-and-lint:fix
+
+# 3. E2E 테스트 통과 확인
+bun test:e2e
+```
+
+**체크리스트:**
+- [ ] TypeScript 타입 오류 없음
+- [ ] Prettier 포매팅 통과
+- [ ] Oxlint 경고 최소화 (중대한 오류 없음)
+- [ ] 모든 E2E 테스트 통과
+- [ ] 변경사항이 기존 기능을 손상시키지 않음
+- [ ] 커밋 메시지가 명확하고 구체적임
+
+**Oxlint vs Biome 장점:**
+- ⚡ **10배 빠른 속도**: Oxlint는 Rust 기반으로 매우 빠름
+- 🎯 **필수 오류 집중**: 중요한 오류만 잡아냄 (경고는 허용 가능)
+- 🔧 **Prettier 분리**: 포매팅은 Prettier, 린팅은 Oxlint 역할 분담
 
 ## Git 및 GitHub 워크플로우
 

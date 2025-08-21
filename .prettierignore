@@ -1,0 +1,7 @@
+node_modules
+dist
+.netlify
+*.md
+package.json
+package-lock.json
+bun.lockb
