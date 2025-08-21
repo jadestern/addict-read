@@ -18,25 +18,29 @@ export function ArticleDetailPage({ onArticleView }: ArticleDetailPageProps) {
     resolve: {
       profile: true,
       root: {
-        importedArticles: true
-      }
+        importedArticles: true,
+      },
     },
   });
 
-  const jazzArticle = id && me?.root?.importedArticles
-    ? me.root.importedArticles.find((article) => article !== null && article.id === id)
+  const jazzArticle =
+    id && me?.root?.importedArticles
+      ? me.root.importedArticles.find(
+          (article) => article !== null && article.id === id
+        )
+      : null;
+
+  const article = jazzArticle
+    ? {
+        id: jazzArticle.id,
+        title: jazzArticle.title,
+        link: jazzArticle.url,
+        pubDate: jazzArticle.pubDate,
+        description: jazzArticle.description,
+        isRead: jazzArticle.isRead,
+        jazzArticle: jazzArticle,
+      }
     : null;
-
-  const article = jazzArticle ? {
-    id: jazzArticle.id,
-    title: jazzArticle.title,
-    link: jazzArticle.url,
-    pubDate: jazzArticle.pubDate,
-    description: jazzArticle.description,
-    isRead: jazzArticle.isRead,
-    jazzArticle: jazzArticle,
-  } : null;
-
 
   const title = article ? `${article.title} - Feedic` : "Feedic";
   useDocumentTitle(title);
@@ -50,8 +54,8 @@ export function ArticleDetailPage({ onArticleView }: ArticleDetailPageProps) {
   useEffect(() => {
     if (hasRedirected.current || jazzArticle) return;
 
-    const hasFullyLoadedData = me?.root?.importedArticles
-      && me.root.importedArticles.length > 0;
+    const hasFullyLoadedData =
+      me?.root?.importedArticles && me.root.importedArticles.length > 0;
 
     if (hasFullyLoadedData && !jazzArticle && id) {
       const timer = setTimeout(() => {

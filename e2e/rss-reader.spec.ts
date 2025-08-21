@@ -361,22 +361,21 @@ test.describe("RSS Reader 기본 기능", () => {
 
     // 첫 번째 기사의 제목 가져오기
     const firstArticle = page.getByTestId("article-item").first();
-    const articleTitle = await firstArticle
-      .locator("h3")
-      .first()
-      .textContent();
+    const articleTitle = await firstArticle.locator("h3").first().textContent();
 
     // 기사 클릭하여 상세 페이지로 이동
     await firstArticle.click();
 
     // 상세 페이지에서 제목이 "기사제목 - Feedic" 형태로 변경되었는지 확인
     await expect(page.getByTestId("article-detail")).toBeVisible();
-    
+
     // 기사 상세 정보가 완전히 로드되기까지 잠시 대기
     await page.waitForTimeout(1000);
-    
+
     if (articleTitle) {
-      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 10000 });
+      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, {
+        timeout: 10000,
+      });
     }
 
     // 뒤로가기 후 다시 기본 제목으로 돌아오는지 확인
@@ -401,11 +400,8 @@ test.describe("RSS Reader 기본 기능", () => {
 
     // 첫 번째 기사 클릭하여 상세 페이지로 이동
     const firstArticle = page.getByTestId("article-item").first();
-    const articleTitle = await firstArticle
-      .locator("h3")
-      .first()
-      .textContent();
-    
+    const articleTitle = await firstArticle.locator("h3").first().textContent();
+
     await firstArticle.click();
     await expect(page.getByTestId("article-detail")).toBeVisible();
 
@@ -415,31 +411,41 @@ test.describe("RSS Reader 기본 기능", () => {
 
     // 페이지 제목이 기사 제목으로 변경될 때까지 대기
     if (articleTitle) {
-      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 5000 });
+      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, {
+        timeout: 5000,
+      });
     }
 
     // 페이지 새로고침
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: "networkidle" });
 
     // 새로고침 직후 잠시 대기 (Jazz 데이터 동기화)
     await page.waitForTimeout(2000);
 
     // 홈 페이지로 리다이렉트되었는지 확인 (현재 버그)
     const currentUrl = page.url();
-    
-    if (currentUrl.includes('/article/')) {
+
+    if (currentUrl.includes("/article/")) {
       // 상세 페이지가 유지됨 (수정된 상태)
-      await expect(page.getByTestId("article-detail")).toBeVisible({ timeout: 5000 });
+      await expect(page.getByTestId("article-detail")).toBeVisible({
+        timeout: 5000,
+      });
       if (articleTitle) {
-        await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 5000 });
+        await expect(page).toHaveTitle(`${articleTitle} - Feedic`, {
+          timeout: 5000,
+        });
       }
     } else {
       // 홈으로 리다이렉트됨 (현재 버그 상태)
-      await expect(page.getByTestId("article-list")).toBeVisible({ timeout: 5000 });
+      await expect(page.getByTestId("article-list")).toBeVisible({
+        timeout: 5000,
+      });
       await expect(page).toHaveTitle("Feedic");
-      
+
       // 이 경우 테스트 실패로 처리
-      throw new Error(`새로고침 후 홈페이지로 리다이렉트됨. 현재 URL: ${currentUrl}, 예상 URL: ${detailPageUrl}`);
+      throw new Error(
+        `새로고침 후 홈페이지로 리다이렉트됨. 현재 URL: ${currentUrl}, 예상 URL: ${detailPageUrl}`
+      );
     }
   });
 });

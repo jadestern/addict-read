@@ -1,7 +1,7 @@
 import { co, Group } from "jazz-tools";
 import { useAccount } from "jazz-tools/react";
 import { useMemo, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AuthButton } from "./AuthButton.tsx";
 import { parseRss } from "./api/rssParser.ts";
 import { useToast } from "./contexts/ToastContext.tsx";
@@ -14,7 +14,6 @@ function App() {
     resolve: { profile: true, root: { importedFeeds: true } },
   });
   const { showToast } = useToast();
-  const navigate = useNavigate();
 
   // 로딩 상태 관리 (Jazz 데이터는 자동 반응성)
   const [isLoading, setIsLoading] = useState(false);
@@ -217,11 +216,7 @@ function App() {
           />
           <Route
             path="/article/:id"
-            element={
-              <ArticleDetailPage
-                onArticleView={handleArticleView}
-              />
-            }
+            element={<ArticleDetailPage onArticleView={handleArticleView} />}
           />
         </Routes>
       </main>
