@@ -190,4 +190,91 @@ test.describe("RSS Reader 기본 기능", () => {
 		const firstArticle = articles.first();
 		await expect(firstArticle).toContainText("샘플 기사 1");
 	});
+
+	// 🆕 읽음 상태 관리 테스트 추가
+	test("기사 클릭 시 읽음 상태로 변경되어야 함", async ({ page }) => {
+		const rssUrlInput = page.getByLabel("RSS URL");
+		const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+		// 피드 추가
+		await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+		await submitButton.click();
+		await expect(page.getByTestId("success-message")).toBeVisible();
+
+		// 기사 목록 로딩 완료 대기
+		await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+		// 첫 번째 기사가 안읽음 상태인지 확인
+		const firstArticle = page.getByTestId("article-item").first();
+		await expect(firstArticle).toHaveClass(/unread/); // 안읽음 스타일
+
+		// 기사 제목 클릭
+		const articleLink = firstArticle.getByRole("link").first();
+		await articleLink.click();
+
+		// 새 탭에서 열린 후 원래 탭으로 돌아오기
+		await page.waitForTimeout(500);
+
+		// 기사가 읽음 상태로 변경되었는지 확인
+		await expect(firstArticle).toHaveClass(/read/); // 읽음 스타일
+		await expect(firstArticle).not.toHaveClass(/unread/);
+	});
+
+	test("전체 읽음 버튼이 작동해야 함", async ({ page }) => {
+		const rssUrlInput = page.getByLabel("RSS URL");
+		const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+		// 피드 추가
+		await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+		await submitButton.click();
+		await expect(page.getByTestId("success-message")).toBeVisible();
+
+		// 기사 목록 로딩 완료 대기
+		await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+		// 모든 기사가 안읽음 상태인지 확인
+		const articles = page.getByTestId("article-item");
+		const articleCount = await articles.count();
+		for (let i = 0; i < articleCount; i++) {
+			await expect(articles.nth(i)).toHaveClass(/unread/);
+		}
+
+		// 전체 읽음 버튼 클릭
+		await page.getByTestId("mark-all-read-button").click();
+
+		// 모든 기사가 읽음 상태로 변경되었는지 확인
+		for (let i = 0; i < articleCount; i++) {
+			await expect(articles.nth(i)).toHaveClass(/read/);
+			await expect(articles.nth(i)).not.toHaveClass(/unread/);
+		}
+	});
+
+	test("읽음 상태에 따른 시각적 구분이 표시되어야 함", async ({ page }) => {
+		const rssUrlInput = page.getByLabel("RSS URL");
+		const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+		// 피드 추가
+		await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+		await submitButton.click();
+		await expect(page.getByTestId("success-message")).toBeVisible();
+
+		// 기사 목록 로딩 완료 대기
+		await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+		const firstArticle = page.getByTestId("article-item").first();
+
+		// 안읽음 상태일 때 스타일 확인
+		await expect(firstArticle).toHaveClass(/unread/);
+		// 안읽음 기사는 투명도가 낮고 제목이 굵게 표시
+		await expect(firstArticle).toHaveCSS("opacity", "1");
+
+		// 기사 클릭하여 읽음 상태로 변경
+		await firstArticle.getByRole("link").first().click();
+		await page.waitForTimeout(500);
+
+		// 읽음 상태일 때 스타일 확인
+		await expect(firstArticle).toHaveClass(/read/);
+		// 읽음 기사는 투명도가 높고 회색으로 표시
+		await expect(firstArticle).toHaveCSS("opacity", /0\.[5-8]/); // 0.5-0.8 범위
+	});
 });

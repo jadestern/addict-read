@@ -19,16 +19,19 @@ function App() {
 	// 로딩 상태 관리 (Jazz 데이터는 자동 반응성)
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Jazz 데이터를 직접 사용 - 자동 반응성 + 최신순 정렬
+	// Jazz 데이터를 직접 사용 - 자동 반응성 + 최신순 정렬 + 읽음 상태 포함
 	const articles = useMemo(() => {
 		if (!me?.root?.importedArticles) return [];
 		return me.root.importedArticles
 			.filter((article) => article !== null)
 			.map((article) => ({
+				id: article.id,
 				title: article.title,
 				link: article.url,
 				pubDate: article.pubDate,
 				description: undefined,
+				isRead: article.isRead,
+				jazzArticle: article, // Jazz 객체 직접 참조 (읽음 상태 변경용)
 			}))
 			.sort(
 				(a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
@@ -166,6 +169,26 @@ function App() {
 		}
 	};
 
+	// 기사 읽음 처리
+	const handleArticleClick = (articleId: string) => {
+		const article = articles.find(a => a.id === articleId);
+		if (article?.jazzArticle && !article.isRead) {
+			article.jazzArticle.isRead = true;
+		}
+	};
+
+	// 전체 기사 읽음 처리
+	const handleMarkAllRead = () => {
+		if (me?.root?.importedArticles) {
+			me.root.importedArticles.forEach(article => {
+				if (article && !article.isRead) {
+					article.isRead = true;
+				}
+			});
+		}
+		showToast("모든 기사가 읽음 처리되었습니다", "success");
+	};
+
 	return (
 		<>
 			<header>
@@ -189,7 +212,12 @@ function App() {
 					)}
 				</div>
 
-				<ArticleList articles={articles} isLoading={isLoading} />
+				<ArticleList 
+					articles={articles} 
+					isLoading={isLoading}
+					onArticleClick={handleArticleClick}
+					onMarkAllRead={handleMarkAllRead}
+				/>
 
 				<RssUrlForm onSubmit={handleRssSubmit} isLoading={isLoading} />
 

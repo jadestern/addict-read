@@ -1,11 +1,18 @@
 import type { Article } from "../types/rss";
 
-interface ArticleListProps {
-	articles: Article[];
-	isLoading: boolean;
+interface ExtendedArticle extends Article {
+	id: string;
+	isRead: boolean;
 }
 
-export function ArticleList({ articles, isLoading }: ArticleListProps) {
+interface ArticleListProps {
+	articles: ExtendedArticle[];
+	isLoading: boolean;
+	onArticleClick: (articleId: string) => void;
+	onMarkAllRead: () => void;
+}
+
+export function ArticleList({ articles, isLoading, onArticleClick, onMarkAllRead }: ArticleListProps) {
 	if (isLoading) {
 		return (
 			<div
@@ -33,12 +40,25 @@ export function ArticleList({ articles, isLoading }: ArticleListProps) {
 
 	return (
 		<div data-testid="article-list" className="space-y-4">
-			<h2 className="text-lg font-semibold text-gray-800 mb-4">최신 기사</h2>
+			<div className="flex justify-between items-center mb-4">
+				<h2 className="text-lg font-semibold text-gray-800">최신 기사</h2>
+				{articles.length > 0 && articles.some(a => !a.isRead) && (
+					<button
+						onClick={onMarkAllRead}
+						data-testid="mark-all-read-button"
+						className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+					>
+						모두 읽음
+					</button>
+				)}
+			</div>
 			{articles.map((article, index) => (
 				<article
 					key={`${article.link}-${index}`}
 					data-testid="article-item"
-					className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+					className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all ${
+						article.isRead ? 'read opacity-60 bg-gray-50' : 'unread opacity-100'
+					}`}
 				>
 					<h3 className="font-medium text-gray-900 mb-2">
 						<a
@@ -46,6 +66,7 @@ export function ArticleList({ articles, isLoading }: ArticleListProps) {
 							target="_blank"
 							rel="noopener noreferrer"
 							className="hover:text-blue-600 transition-colors"
+							onClick={() => onArticleClick(article.id)}
 						>
 							{article.title}
 						</a>
