@@ -22,10 +22,10 @@ export function ArticleList({ articles, isLoading }: ArticleListProps) {
 
 	if (articles.length === 0) {
 		return (
-			<div className="text-center p-8 text-gray-500">
+			<div data-testid="article-list" className="text-center p-8 text-gray-500">
 				<p>아직 구독된 피드가 없습니다.</p>
 				<p className="text-sm mt-1">
-					위에서 RSS URL을 입력해서 피드를 구독해보세요!
+					RSS URL을 입력해서 피드를 구독해보세요!
 				</p>
 			</div>
 		);

@@ -176,8 +176,12 @@ function App() {
 			</header>
 			<main className="max-w-2xl mx-auto px-3 mt-16 flex flex-col gap-8">
 				<div className="text-center">
-					<h1>Feedic</h1>
-					<p>RSS 피드를 구독하고 최신 기사를 확인하세요</p>
+					{/* 기사가 없을 때만 메인 타이틀 표시 (헤더와 중복 방지) */}
+					{articles.length === 0 && <h1>Feedic</h1>}
+					{/* 로그인하지 않았거나 기사가 없을 때만 앱 설명 표시 */}
+					{(!isAuthenticated || articles.length === 0) && (
+						<p>RSS 피드를 구독하고 최신 기사를 확인하세요</p>
+					)}
 					{isAuthenticated && me?.profile?.firstName && (
 						<p className="text-sm text-gray-600">
 							안녕하세요, {me.profile.firstName}님!

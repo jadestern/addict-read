@@ -100,7 +100,7 @@ test.describe("RSS Reader 기본 기능", () => {
 		await expect(rssUrlInput).toHaveValue("");
 	});
 
-	test.skip("중복된 RSS URL 추가 시 에러 메시지가 표시되어야 함", async ({
+	test("중복된 RSS URL 추가 시 에러 메시지가 표시되어야 함", async ({
 		page,
 	}) => {
 		const rssUrlInput = page.getByLabel("RSS URL");
