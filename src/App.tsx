@@ -77,6 +77,7 @@ function App() {
       showToast("구독이 추가되었습니다", "success");
       return true;
     } catch (error) {
+      console.error("구독 추가 실패:", error);
       showToast("구독 추가에 실패했습니다", "error");
       return false;
     }
@@ -122,6 +123,7 @@ function App() {
 
       // Jazz에 저장하면 useMemo를 통해 자동으로 UI 업데이트됨
     } catch (error) {
+      console.error("RSS 파싱 실패:", error);
       showToast("기사를 불러오는데 실패했습니다", "error");
     } finally {
       setIsLoading(false);
@@ -166,6 +168,7 @@ function App() {
 
       showToast("피드가 삭제되었습니다", "success");
     } catch (error) {
+      console.error("피드 삭제 실패:", error);
       showToast("피드 삭제에 실패했습니다", "error");
     }
   };

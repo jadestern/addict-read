@@ -46,7 +46,7 @@ export function ArticleList({
     <div data-testid="article-list" className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">최신 기사</h2>
-        {articles.length > 0 && articles.some((a) => !a.isRead) && (
+        {articles.some((a) => !a.isRead) && (
           <button
             onClick={onMarkAllRead}
             data-testid="mark-all-read-button"
