@@ -61,20 +61,19 @@ export function ArticleList({ articles, isLoading, onArticleClick, onMarkAllRead
 					}`}
 				>
 					<h3 className="font-medium text-gray-900 mb-2">
-						<a
-							href={article.link}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="hover:text-blue-600 transition-colors"
+						<button
+							className="text-left hover:text-blue-600 transition-colors w-full"
 							onClick={() => onArticleClick(article.id)}
 						>
 							{article.title}
-						</a>
+						</button>
 					</h3>
 
 					{article.description && (
-						<p className="text-gray-600 text-sm mb-3 line-clamp-2">
-							{article.description}
+						<p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
+							{/* HTML 태그 제거 후 요약 텍스트 표시 */}
+							{article.description.replace(/<[^>]*>/g, '').substring(0, 120)}
+							{article.description.length > 120 ? '...' : ''}
 						</p>
 					)}
 
@@ -88,7 +87,23 @@ export function ArticleList({ articles, isLoading, onArticleClick, onMarkAllRead
 								minute: "2-digit",
 							})}
 						</time>
-						<span className="text-blue-600 hover:underline">외부 링크 →</span>
+						<div className="flex items-center gap-3">
+							<button
+								onClick={() => onArticleClick(article.id)}
+								className="text-blue-600 hover:underline"
+							>
+								자세히 보기 →
+							</button>
+							<a
+								href={article.link}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-gray-500 hover:text-blue-600"
+								onClick={(e) => e.stopPropagation()}
+							>
+								🔗
+							</a>
+						</div>
 					</div>
 				</article>
 			))}

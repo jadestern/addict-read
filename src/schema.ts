@@ -33,6 +33,7 @@ export const Article = co.map({
 	url: z.string(),
 	feedUrl: z.string(),
 	pubDate: z.string(),
+	description: z.string().optional(), // 기사 전문 내용
 	isRead: z.boolean().default(false),
 	// 나중에 계정 연결 시 사용할 구멍
 	userId: z.string().optional(),
@@ -77,6 +78,7 @@ export type ParsedArticle = {
 	title: string;
 	link: string;
 	pubDate: string;
+	description?: string; // 기사 설명/내용
 };
 
 export const JazzAccount = co
