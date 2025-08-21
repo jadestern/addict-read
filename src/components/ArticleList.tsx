@@ -9,14 +9,12 @@ interface ExtendedArticle extends Article {
 interface ArticleListProps {
   articles: ExtendedArticle[];
   isLoading: boolean;
-  onArticleClick: (articleId: string) => void;
   onMarkAllRead: () => void;
 }
 
 export function ArticleList({
   articles,
   isLoading,
-  onArticleClick,
   onMarkAllRead,
 }: ArticleListProps) {
   if (isLoading) {
@@ -60,7 +58,6 @@ export function ArticleList({
         <Link
           key={`${article.link}-${index}`}
           to={`/article/${article.id}`}
-          onClick={() => onArticleClick(article.id)}
           data-testid="article-item"
           className={`block border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer ${
             article.isRead ? "read opacity-60 bg-gray-50" : "unread opacity-100"

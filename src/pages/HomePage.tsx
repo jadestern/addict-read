@@ -3,12 +3,12 @@ import { ArticleList } from "../components/ArticleList.tsx";
 import { FeedList } from "../components/FeedList.tsx";
 import { RssUrlForm } from "../components/RssUrlForm.tsx";
 import { JazzAccount } from "../schema.ts";
+import { useDocumentTitle } from "../hooks/useDocumentTitle.ts";
 
 interface HomePageProps {
   articles: any[];
   isLoading: boolean;
   onRssSubmit: (url: string) => Promise<void>;
-  onArticleClick: (articleId: string) => void;
   onMarkAllRead: () => void;
   onDeleteFeed: (feedId: string, feedUrl: string) => Promise<void>;
 }
@@ -17,7 +17,6 @@ export function HomePage({
   articles,
   isLoading,
   onRssSubmit,
-  onArticleClick,
   onMarkAllRead,
   onDeleteFeed,
 }: HomePageProps) {
@@ -25,6 +24,8 @@ export function HomePage({
     resolve: { profile: true, root: { importedFeeds: true } },
   });
   const isAuthenticated = useIsAuthenticated();
+
+  useDocumentTitle("Feedic");
 
   return (
     <>
@@ -45,7 +46,6 @@ export function HomePage({
       <ArticleList
         articles={articles}
         isLoading={isLoading}
-        onArticleClick={onArticleClick}
         onMarkAllRead={onMarkAllRead}
       />
 

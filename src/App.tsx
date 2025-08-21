@@ -173,11 +173,6 @@ function App() {
     }
   };
 
-  // 기사 상세 페이지로 이동
-  const handleArticleClick = (articleId: string) => {
-    navigate(`/article/${articleId}`);
-  };
-
   // 기사 보기 시 읽음 처리 (ArticleDetailPage에서 호출)
   const handleArticleView = (articleId: string) => {
     const article = articles.find((a) => a.id === articleId);
@@ -215,7 +210,6 @@ function App() {
                 articles={articles}
                 isLoading={isLoading}
                 onRssSubmit={handleRssSubmit}
-                onArticleClick={handleArticleClick}
                 onMarkAllRead={handleMarkAllRead}
                 onDeleteFeed={handleDeleteFeed}
               />

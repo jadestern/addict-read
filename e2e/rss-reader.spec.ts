@@ -308,4 +308,80 @@ test.describe("RSS Reader 기본 기능", () => {
     // 읽음 기사는 투명도가 높고 회색으로 표시
     await expect(firstArticle).toHaveCSS("opacity", /0\.[5-8]/); // 0.5-0.8 범위
   });
+
+  test("기사 상세 페이지에서 브라우저 뒤로가기가 올바르게 작동해야 함", async ({
+    page,
+  }) => {
+    const rssUrlInput = page.getByLabel("RSS URL");
+    const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+    // 피드 추가
+    await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+    await submitButton.click();
+    await expect(page.getByTestId("success-message")).toBeVisible();
+
+    // 기사 목록 로딩 완료 대기
+    await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+    // 메인 페이지 URL 확인
+    expect(page.url()).toMatch(/\/$|\/$/);
+
+    // 첫 번째 기사 클릭하여 상세 페이지로 이동
+    const firstArticle = page.getByTestId("article-item").first();
+    await firstArticle.click();
+
+    // 상세 페이지 URL 확인 (히스토리가 한 번만 쌓였는지)
+    await expect(page.getByTestId("article-detail")).toBeVisible();
+    expect(page.url()).toMatch(/\/article\//);
+
+    // 브라우저 뒤로가기 버튼으로 목록으로 돌아가기 (한 번만!)
+    await page.goBack();
+
+    // 메인 페이지로 돌아왔는지 확인
+    await expect(page.getByTestId("article-list")).toBeVisible();
+    expect(page.url()).toMatch(/\/$|\/$/);
+  });
+
+  test("상세 페이지에서 페이지 제목이 기사 제목으로 변경되어야 함", async ({
+    page,
+  }) => {
+    const rssUrlInput = page.getByLabel("RSS URL");
+    const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+    // 피드 추가
+    await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+    await submitButton.click();
+    await expect(page.getByTestId("success-message")).toBeVisible();
+
+    // 기사 목록 로딩 완료 대기
+    await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+    // 메인 페이지에서 기본 제목 확인
+    await expect(page).toHaveTitle("Feedic");
+
+    // 첫 번째 기사의 제목 가져오기
+    const firstArticle = page.getByTestId("article-item").first();
+    const articleTitle = await firstArticle
+      .locator("h3")
+      .first()
+      .textContent();
+
+    // 기사 클릭하여 상세 페이지로 이동
+    await firstArticle.click();
+
+    // 상세 페이지에서 제목이 "기사제목 - Feedic" 형태로 변경되었는지 확인
+    await expect(page.getByTestId("article-detail")).toBeVisible();
+    
+    // 기사 상세 정보가 완전히 로드되기까지 잠시 대기
+    await page.waitForTimeout(1000);
+    
+    if (articleTitle) {
+      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 10000 });
+    }
+
+    // 뒤로가기 후 다시 기본 제목으로 돌아오는지 확인
+    await page.getByTestId("back-button").click();
+    await expect(page.getByTestId("article-list")).toBeVisible();
+    await expect(page).toHaveTitle("Feedic");
+  });
 });
