@@ -327,6 +327,35 @@ bun test:e2e               # E2E 테스트 실행
 - [ ] 기능 구현
 - [ ] 모든 테스트 통과 확인
 
+### 🚨 빌드 오류 해결 가이드
+
+**TypeScript 컴파일 에러 해결 순서:**
+1. **unused imports 제거**: 사용하지 않는 import 문 삭제
+2. **unused variables 제거**: 선언했지만 사용하지 않는 변수 삭제  
+3. **타입 오류 수정**: 명시적 타입 지정 또는 타입 assertion 사용
+
+**예시: 빌드 실패 → 해결**:
+```bash
+# 오류 발생
+src/App.tsx(16,8): error TS6133: 'isAuthenticated' is declared but its value is never read.
+
+# 해결 방법
+- import { useAccount, useIsAuthenticated } from "jazz-tools/react";  // ❌
++ import { useAccount } from "jazz-tools/react";                      // ✅
+
+# 확인
+bunx tsc --noEmit  # 0 errors
+```
+
+**커밋 전 체크 명령어 진화:**
+```bash
+# AS-IS (Biome 시절 - 느림)
+bun run format-and-lint:fix  # ~10초
+
+# TO-BE (Oxlint + Prettier - 빠름) 
+bun run check                # ~100ms
+```
+
 ### 🚨 Git 커밋 전 필수 체크리스트
 
 **매번 커밋하기 전에 반드시 실행:**
@@ -351,9 +380,35 @@ bun test:e2e
 - [ ] 커밋 메시지가 명확하고 구체적임
 
 **Oxlint vs Biome 장점:**
-- ⚡ **10배 빠른 속도**: Oxlint는 Rust 기반으로 매우 빠름
+- ⚡ **10배 빠른 속도**: Oxlint는 Rust 기반으로 매우 빠름 (~3ms vs ~10s)
 - 🎯 **필수 오류 집중**: 중요한 오류만 잡아냄 (경고는 허용 가능)
 - 🔧 **Prettier 분리**: 포매팅은 Prettier, 린팅은 Oxlint 역할 분담
+
+### 🔧 에러 처리 모범 사례
+
+**Catch 블록에서 에러 로깅:**
+```typescript
+// ✅ 권장: 사용자 + 개발자 모두 고려
+} catch (error) {
+  console.error("구체적인 작업명 실패:", error);  // 개발자용 디버깅
+  showToast("사용자 친화적 메시지", "error");     // 사용자용 UI
+}
+
+// ❌ 비권장: 에러 정보 손실
+} catch {
+  showToast("에러가 발생했습니다", "error");
+}
+```
+
+**에러 로깅의 장점:**
+- 🐛 **디버깅 향상**: 브라우저 개발자 도구에서 정확한 원인 파악
+- 📊 **에러 추적**: 실제 사용자 환경에서 발생하는 문제 모니터링
+- ⚡ **빠른 해결**: 에러 스택 추적으로 문제 위치 즉시 확인
+
+**Oxlint 경고 제거 방법:**
+1. **unused parameter**: `catch (error)` → `catch` (파라미터 생략)
+2. **주석 방식**: `// eslint-disable-next-line rule-name` (비추천)
+3. **실제 사용**: `console.error()` 등으로 실제 사용 (권장)
 
 ## Git 및 GitHub 워크플로우
 
