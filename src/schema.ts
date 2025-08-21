@@ -34,7 +34,7 @@ export const Article = co.map({
   feedUrl: z.string(),
   pubDate: z.string(),
   description: z.string().optional(), // 기사 전문 내용
-  isRead: z.boolean().default(false),
+  isRead: z.boolean(),
   // 나중에 계정 연결 시 사용할 구멍
   userId: z.string().optional(),
 });

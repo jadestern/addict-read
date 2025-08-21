@@ -384,4 +384,62 @@ test.describe("RSS Reader 기본 기능", () => {
     await expect(page.getByTestId("article-list")).toBeVisible();
     await expect(page).toHaveTitle("Feedic");
   });
+
+  test("상세 페이지에서 새로고침 시 페이지가 유지되어야 함", async ({
+    page,
+  }) => {
+    const rssUrlInput = page.getByLabel("RSS URL");
+    const submitButton = page.getByRole("button", { name: /추가|구독/ });
+
+    // 피드 추가
+    await rssUrlInput.fill("https://feeds.feedburner.com/c_news");
+    await submitButton.click();
+    await expect(page.getByTestId("success-message")).toBeVisible();
+
+    // 기사 목록 로딩 완료 대기
+    await expect(page.getByText(/로딩/)).not.toBeVisible({ timeout: 5000 });
+
+    // 첫 번째 기사 클릭하여 상세 페이지로 이동
+    const firstArticle = page.getByTestId("article-item").first();
+    const articleTitle = await firstArticle
+      .locator("h3")
+      .first()
+      .textContent();
+    
+    await firstArticle.click();
+    await expect(page.getByTestId("article-detail")).toBeVisible();
+
+    // 현재 URL 확인 (상세 페이지 URL이어야 함)
+    const detailPageUrl = page.url();
+    expect(detailPageUrl).toContain("/article/");
+
+    // 페이지 제목이 기사 제목으로 변경될 때까지 대기
+    if (articleTitle) {
+      await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 5000 });
+    }
+
+    // 페이지 새로고침
+    await page.reload({ waitUntil: 'networkidle' });
+
+    // 새로고침 직후 잠시 대기 (Jazz 데이터 동기화)
+    await page.waitForTimeout(2000);
+
+    // 홈 페이지로 리다이렉트되었는지 확인 (현재 버그)
+    const currentUrl = page.url();
+    
+    if (currentUrl.includes('/article/')) {
+      // 상세 페이지가 유지됨 (수정된 상태)
+      await expect(page.getByTestId("article-detail")).toBeVisible({ timeout: 5000 });
+      if (articleTitle) {
+        await expect(page).toHaveTitle(`${articleTitle} - Feedic`, { timeout: 5000 });
+      }
+    } else {
+      // 홈으로 리다이렉트됨 (현재 버그 상태)
+      await expect(page.getByTestId("article-list")).toBeVisible({ timeout: 5000 });
+      await expect(page).toHaveTitle("Feedic");
+      
+      // 이 경우 테스트 실패로 처리
+      throw new Error(`새로고침 후 홈페이지로 리다이렉트됨. 현재 URL: ${currentUrl}, 예상 URL: ${detailPageUrl}`);
+    }
+  });
 });

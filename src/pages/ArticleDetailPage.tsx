@@ -14,13 +14,12 @@ export function ArticleDetailPage({
 }: ArticleDetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [hasWaitedForData, setHasWaitedForData] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const article = id ? articles.find((a) => a.id === id) : null;
 
   // 페이지 제목 설정
-  const title = article ? `${article.title} - Feedic` : 
-                !hasWaitedForData ? "로딩 중... - Feedic" : "Feedic";
+  const title = article ? `${article.title} - Feedic` : "Feedic";
   useDocumentTitle(title);
 
   // 기사를 볼 때 읽음 처리
@@ -30,36 +29,33 @@ export function ArticleDetailPage({
     }
   }, [id, article, onArticleView]);
 
-  // Jazz 데이터 로딩 완료를 기다리는 로직
+  // Jazz local-first: 컴포넌트 마운트 시 즉시 초기화
   useEffect(() => {
-    // 2초 후에는 데이터 로딩 완료로 간주
-    const timer = setTimeout(() => {
-      setHasWaitedForData(true);
-    }, 2000);
+    setIsInitialized(true);
+  }, []);
 
-    // articles가 로드되면 즉시 완료로 간주
-    if (articles.length > 0) {
-      setHasWaitedForData(true);
-      clearTimeout(timer);
+  // 초기화 완료 후 기사가 없고 articles가 존재하면 리다이렉트
+  useEffect(() => {
+    if (isInitialized && !article && articles.length > 0) {
+      // articles가 있지만 해당 기사가 없으면 홈으로
+      navigate("/");
     }
-
-    return () => clearTimeout(timer);
-  }, [articles.length]);
+  }, [isInitialized, article, articles.length, navigate]);
 
   const handleBack = () => {
     navigate("/");
   };
 
-  // 아직 데이터 로딩 대기 중
-  if (!hasWaitedForData) {
-    return <div>기사를 불러오는 중...</div>;
+  // 아직 초기화되지 않았으면 잠시 대기
+  if (!isInitialized) {
+    return <div>로딩 중...</div>;
   }
 
-  // 데이터 로딩 완료 후 기사가 없으면 리다이렉트
-  if (!article) {
-    navigate("/");
-    return null;
+  // 기사가 있으면 표시
+  if (article) {
+    return <ArticleDetail article={article} onBack={handleBack} />;
   }
 
-  return <ArticleDetail article={article} onBack={handleBack} />;
+  // 기사가 없으면 리다이렉트 중 표시
+  return <div>기사를 찾을 수 없습니다...</div>;
 }
