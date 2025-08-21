@@ -1,6 +1,7 @@
 import { JazzReactProvider } from "jazz-tools/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 import { JazzInspector } from "jazz-tools/inspector";
@@ -13,15 +14,17 @@ export const APPLICATION_NAME = "feedic";
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<JazzReactProvider
-			sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
-			AccountSchema={JazzAccount}
-		>
-			<ToastProvider>
-				<App />
+		<BrowserRouter>
+			<JazzReactProvider
+				sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+				AccountSchema={JazzAccount}
+			>
+				<ToastProvider>
+					<App />
 
-				<JazzInspector />
-			</ToastProvider>
-		</JazzReactProvider>
+					<JazzInspector />
+				</ToastProvider>
+			</JazzReactProvider>
+		</BrowserRouter>
 	</StrictMode>,
 );

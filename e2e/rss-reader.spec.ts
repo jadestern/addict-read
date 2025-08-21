@@ -200,8 +200,8 @@ test.describe("RSS Reader 기본 기능", () => {
 		}
 	});
 
-	// 🆕 읽음 상태 관리 테스트 추가
-	test("기사 클릭 시 읽음 상태로 변경되어야 함", async ({ page }) => {
+	// 🆕 기사 카드 클릭 시 상세 페이지로 이동 + 읽음 상태 변경 테스트
+	test("기사 카드 클릭 시 상세 페이지로 이동하고 읽음 상태가 변경되어야 함", async ({ page }) => {
 		const rssUrlInput = page.getByLabel("RSS URL");
 		const submitButton = page.getByRole("button", { name: /추가|구독/ });
 
@@ -217,14 +217,20 @@ test.describe("RSS Reader 기본 기능", () => {
 		const firstArticle = page.getByTestId("article-item").first();
 		await expect(firstArticle).toHaveClass(/unread/); // 안읽음 스타일
 
-		// 기사 제목 클릭
-		const articleLink = firstArticle.getByRole("link").first();
-		await articleLink.click();
+		// 기사 카드 전체 클릭하여 상세 페이지로 이동
+		await firstArticle.click();
 
-		// 새 탭에서 열린 후 원래 탭으로 돌아오기
-		await page.waitForTimeout(500);
+		// 상세 페이지로 이동했는지 확인
+		await expect(page.getByTestId("article-detail")).toBeVisible();
+		await expect(page.getByTestId("back-button")).toBeVisible();
 
-		// 기사가 읽음 상태로 변경되었는지 확인
+		// 뒤로가기 버튼 클릭하여 목록으로 돌아가기
+		await page.getByTestId("back-button").click();
+
+		// 메인 페이지로 돌아왔는지 확인
+		await expect(page.getByTestId("article-list")).toBeVisible();
+
+		// 클릭한 기사가 읽음 상태로 변경되었는지 확인
 		await expect(firstArticle).toHaveClass(/read/); // 읽음 스타일
 		await expect(firstArticle).not.toHaveClass(/unread/);
 	});
@@ -277,9 +283,11 @@ test.describe("RSS Reader 기본 기능", () => {
 		// 안읽음 기사는 투명도가 낮고 제목이 굵게 표시
 		await expect(firstArticle).toHaveCSS("opacity", "1");
 
-		// 기사 클릭하여 읽음 상태로 변경
-		await firstArticle.getByRole("link").first().click();
-		await page.waitForTimeout(500);
+		// 기사 카드 클릭하여 상세 페이지로 이동 후 바로 뒤로가기
+		await firstArticle.click();
+		await expect(page.getByTestId("article-detail")).toBeVisible();
+		await page.getByTestId("back-button").click();
+		await expect(page.getByTestId("article-list")).toBeVisible();
 
 		// 읽음 상태일 때 스타일 확인
 		await expect(firstArticle).toHaveClass(/read/);

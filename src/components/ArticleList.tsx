@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Article } from "../types/rss";
 
 interface ExtendedArticle extends Article {
@@ -53,20 +54,17 @@ export function ArticleList({ articles, isLoading, onArticleClick, onMarkAllRead
 				)}
 			</div>
 			{articles.map((article, index) => (
-				<article
+				<Link
 					key={`${article.link}-${index}`}
+					to={`/article/${article.id}`}
+					onClick={() => onArticleClick(article.id)}
 					data-testid="article-item"
-					className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all ${
+					className={`block border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer ${
 						article.isRead ? 'read opacity-60 bg-gray-50' : 'unread opacity-100'
 					}`}
 				>
-					<h3 className="font-medium text-gray-900 mb-2">
-						<button
-							className="text-left hover:text-blue-600 transition-colors w-full"
-							onClick={() => onArticleClick(article.id)}
-						>
-							{article.title}
-						</button>
+					<h3 className="font-medium text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+						{article.title}
 					</h3>
 
 					{article.description && (
@@ -87,25 +85,11 @@ export function ArticleList({ articles, isLoading, onArticleClick, onMarkAllRead
 								minute: "2-digit",
 							})}
 						</time>
-						<div className="flex items-center gap-3">
-							<button
-								onClick={() => onArticleClick(article.id)}
-								className="text-blue-600 hover:underline"
-							>
-								자세히 보기 →
-							</button>
-							<a
-								href={article.link}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-gray-500 hover:text-blue-600"
-								onClick={(e) => e.stopPropagation()}
-							>
-								🔗
-							</a>
+						<div className="flex items-center gap-2">
+							<span className="text-blue-600">자세히 보기 →</span>
 						</div>
 					</div>
-				</article>
+				</Link>
 			))}
 		</div>
 	);

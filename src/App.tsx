@@ -1,12 +1,11 @@
 import { co, Group } from "jazz-tools";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { useMemo, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { AuthButton } from "./AuthButton.tsx";
 import { parseRss } from "./api/rssParser.ts";
-import { ArticleList } from "./components/ArticleList.tsx";
-import { ArticleDetail } from "./components/ArticleDetail.tsx";
-import { FeedList } from "./components/FeedList.tsx";
-import { RssUrlForm } from "./components/RssUrlForm.tsx";
+import { HomePage } from "./pages/HomePage.tsx";
+import { ArticleDetailPage } from "./pages/ArticleDetailPage.tsx";
 import { useToast } from "./contexts/ToastContext.tsx";
 import { JazzAccount, Article as JazzArticle, RSSFeed } from "./schema.ts";
 
@@ -16,12 +15,10 @@ function App() {
 	});
 	const isAuthenticated = useIsAuthenticated();
 	const { showToast } = useToast();
+	const navigate = useNavigate();
 
 	// 로딩 상태 관리 (Jazz 데이터는 자동 반응성)
 	const [isLoading, setIsLoading] = useState(false);
-	
-	// 상세 페이지 상태 관리
-	const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
 
 	// Jazz 데이터를 직접 사용 - 자동 반응성 + 최신순 정렬 + 읽음 상태 포함
 	const articles = useMemo(() => {
@@ -174,18 +171,17 @@ function App() {
 		}
 	};
 
-	// 기사 상세 페이지로 이동 + 읽음 처리
+	// 기사 상세 페이지로 이동
 	const handleArticleClick = (articleId: string) => {
+		navigate(`/article/${articleId}`);
+	};
+	
+	// 기사 보기 시 읽음 처리 (ArticleDetailPage에서 호출)
+	const handleArticleView = (articleId: string) => {
 		const article = articles.find(a => a.id === articleId);
 		if (article?.jazzArticle && !article.isRead) {
 			article.jazzArticle.isRead = true;
 		}
-		setSelectedArticle(articleId);
-	};
-	
-	// 목록으로 돌아가기
-	const handleBackToList = () => {
-		setSelectedArticle(null);
 	};
 
 	// 전체 기사 읽음 처리
@@ -200,11 +196,6 @@ function App() {
 		showToast("모든 기사가 읽음 처리되었습니다", "success");
 	};
 
-	// 선택된 기사 찾기
-	const currentArticle = selectedArticle 
-		? articles.find(a => a.id === selectedArticle)
-		: null;
-
 	return (
 		<>
 			<header>
@@ -214,44 +205,30 @@ function App() {
 				</nav>
 			</header>
 			<main className="max-w-2xl mx-auto px-3 mt-16 flex flex-col gap-8">
-				{/* 상세 페이지 모드 */}
-				{selectedArticle && currentArticle ? (
-					<ArticleDetail 
-						article={currentArticle}
-						onBack={handleBackToList}
+				<Routes>
+					<Route 
+						path="/" 
+						element={
+							<HomePage
+								articles={articles}
+								isLoading={isLoading}
+								onRssSubmit={handleRssSubmit}
+								onArticleClick={handleArticleClick}
+								onMarkAllRead={handleMarkAllRead}
+								onDeleteFeed={handleDeleteFeed}
+							/>
+						} 
 					/>
-				) : (
-					<>
-						{/* 메인 페이지 모드 */}
-						<div className="text-center">
-							{/* 기사가 없을 때만 메인 타이틀 표시 (헤더와 중복 방지) */}
-							{articles.length === 0 && <h1>Feedic</h1>}
-							{/* 기사가 없을 때만 앱 설명 표시 */}
-							{articles.length === 0 && (
-								<p>RSS 피드를 구독하고 최신 기사를 확인하세요</p>
-							)}
-							{isAuthenticated && me?.profile?.firstName && (
-								<p className="text-sm text-gray-600">
-									안녕하세요, {me.profile.firstName}님!
-								</p>
-							)}
-						</div>
-
-						<ArticleList 
-							articles={articles} 
-							isLoading={isLoading}
-							onArticleClick={handleArticleClick}
-							onMarkAllRead={handleMarkAllRead}
-						/>
-
-						<RssUrlForm onSubmit={handleRssSubmit} isLoading={isLoading} />
-
-						<FeedList
-							feeds={me?.root?.importedFeeds || []}
-							onDeleteFeed={handleDeleteFeed}
-						/>
-					</>
-				)}
+					<Route 
+						path="/article/:id" 
+						element={
+							<ArticleDetailPage
+								articles={articles}
+								onArticleView={handleArticleView}
+							/>
+						} 
+					/>
+				</Routes>
 			</main>
 		</>
 	);
