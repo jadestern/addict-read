@@ -219,7 +219,6 @@ function App() {
             path="/article/:id"
             element={
               <ArticleDetailPage
-                articles={articles}
                 onArticleView={handleArticleView}
               />
             }
