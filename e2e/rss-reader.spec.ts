@@ -28,7 +28,7 @@ test.describe("RSS Reader 기본 기능", () => {
 		await expect(page.getByText("구독이 추가되었습니다")).toBeVisible();
 	});
 
-	test.skip("유효하지 않은 URL 입력 시 에러 메시지가 표시되어야 함", async ({
+	test("유효하지 않은 URL 입력 시 에러 메시지가 표시되어야 함", async ({
 		page,
 	}) => {
 		const rssUrlInput = page.getByLabel("RSS URL");
@@ -46,7 +46,7 @@ test.describe("RSS Reader 기본 기능", () => {
 		expect(isInvalid).toBe(true);
 	});
 
-	test.skip("HTTP URL 입력 시 에러 메시지가 표시되어야 함", async ({ page }) => {
+	test("HTTP URL 입력 시 에러 메시지가 표시되어야 함", async ({ page }) => {
 		const rssUrlInput = page.getByLabel("RSS URL");
 		const submitButton = page.getByRole("button", { name: /추가|구독/ });
 
@@ -59,7 +59,7 @@ test.describe("RSS Reader 기본 기능", () => {
 		await expect(page.getByText("HTTPS URL만 허용됩니다")).toBeVisible();
 	});
 
-	test.skip("빈 URL 입력 시 에러 메시지가 표시되어야 함", async ({ page }) => {
+	test("빈 URL 입력 시 에러 메시지가 표시되어야 함", async ({ page }) => {
 		const rssUrlInput = page.getByLabel("RSS URL");
 		const submitButton = page.getByRole("button", { name: /추가|구독/ });
 
@@ -120,7 +120,7 @@ test.describe("RSS Reader 기본 기능", () => {
 		await expect(page.getByText("이미 구독 중인 피드입니다!")).toBeVisible();
 	});
 
-	test.skip("RSS 파싱 실패 시 에러 메시지가 표시되어야 함", async ({ page }) => {
+	test("RSS 파싱 실패 시 에러 메시지가 표시되어야 함", async ({ page }) => {
 		// Mock API에서 에러를 발생시키기 위해 특정 URL 사용
 		const errorUrl = "https://invalid-rss-feed.com/error";
 
